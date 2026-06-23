@@ -1,0 +1,536 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Dashboard</title>
+
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+
+        html,
+        body{
+            height:100%;
+        }
+
+        body{
+            font-family:Arial, sans-serif;
+            margin:0;
+            min-height:100vh;
+            overflow:hidden;
+            padding:20px;
+            background:#f4f4f4;
+        }
+
+        .container{
+            max-width:1200px;
+            height:calc(100vh - 40px);
+            margin:auto;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            display:flex;
+            flex-direction:column;
+            min-height:0;
+        }
+
+        .page-title{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+            margin-bottom:16px;
+            flex:0 0 auto;
+        }
+
+        .page-title h1{
+            margin:0;
+        }
+
+        #total-count,
+        #pagination-status{
+            color:#555;
+            font-size:14px;
+        }
+
+        .toolbar{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap:16px;
+            margin-bottom:18px;
+            flex:0 0 auto;
+        }
+
+        .field{
+            display:flex;
+            flex:1;
+            flex-direction:column;
+            gap:6px;
+            font-size:13px;
+            font-weight:700;
+            color:#444;
+        }
+
+        .field.compact{
+            flex:0 0 140px;
+        }
+
+        input,
+        select{
+            border:1px solid #ccc;
+            border-radius:6px;
+            font:inherit;
+            min-height:40px;
+            padding:8px 10px;
+        }
+
+        .table-window{
+            border:1px solid #ddd;
+            flex:1 1 auto;
+            min-height:0;
+            overflow:auto;
+        }
+
+        table{
+            width:100%;
+            border-collapse:separate;
+            border-spacing:0;
+            table-layout:fixed;
+        }
+
+        th,td{
+            padding:12px;
+            border-bottom:1px solid #ddd;
+            border-right:1px solid #ddd;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        th:last-child,
+        td:last-child{
+            border-right:0;
+        }
+
+        th{
+            background:#333;
+            color:white;
+            position:sticky;
+            text-align:left;
+            top:0;
+            z-index:2;
+        }
+
+        tr:nth-child(even){
+            background:#f9f9f9;
+        }
+
+        .empty-row td{
+            color:#777;
+            text-align:center;
+        }
+
+        .pagination-bar{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:16px;
+            margin-top:18px;
+            flex:0 0 auto;
+        }
+
+        button{
+            border:0;
+            background:#333;
+            color:white;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .icon-button{
+            align-items:center;
+            border-radius:6px;
+            display:inline-flex;
+            font-size:20px;
+            height:40px;
+            justify-content:center;
+            line-height:1;
+            width:44px;
+        }
+
+        button:disabled,
+        input:disabled,
+        select:disabled{
+            cursor:not-allowed;
+            opacity:0.65;
+        }
+
+        @media (max-width: 700px){
+            body{
+                padding:12px;
+            }
+
+            .container{
+                height:calc(100vh - 24px);
+                padding:14px;
+            }
+
+            .page-title,
+            .toolbar{
+                align-items:stretch;
+                flex-direction:column;
+            }
+
+            .field.compact{
+                flex:auto;
+            }
+
+            .table-window{
+                overflow:auto;
+            }
+
+            table{
+                min-width:760px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="container">
+    <div class="page-title">
+        <h1>Product Dashboard</h1>
+        <span id="total-count">100 total docs</span>
+    </div>
+
+    <div class="toolbar">
+        <label class="field">
+            <span>Search</span>
+            <input id="search-input" type="search" value="" placeholder="Search all products">
+        </label>
+
+        <label class="field compact">
+            <span>Per page</span>
+            <select id="limit-select">
+                <option value="20" selected>20</option>
+                <option value="40" >40</option>
+                <option value="60" >60</option>
+                <option value="80" >80</option>
+                <option value="100" >100</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="table-window">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+
+            <tbody id="products-body">
+                
+
+                
+                    <tr>
+                        <td>Frozen Marble Chicken</td>
+                        <td>Toys</td>
+                        <td>INR 183.75</td>
+                        <td>407</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Elegant Cotton Shoes</td>
+                        <td>Games</td>
+                        <td>INR 375.55</td>
+                        <td>60</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Practical Rubber Keyboard</td>
+                        <td>Movies</td>
+                        <td>INR 288.05</td>
+                        <td>374</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Elegant Bronze Sausages</td>
+                        <td>Shoes</td>
+                        <td>INR 380.30</td>
+                        <td>240</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Small Rubber Mouse</td>
+                        <td>Books</td>
+                        <td>INR 282.37</td>
+                        <td>34</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Fresh Steel Tuna</td>
+                        <td>Kids</td>
+                        <td>INR 789.99</td>
+                        <td>430</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Electronic Cotton Pizza</td>
+                        <td>Electronics</td>
+                        <td>INR 982.39</td>
+                        <td>26</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Modern Concrete Bacon</td>
+                        <td>Tools</td>
+                        <td>INR 417.51</td>
+                        <td>372</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Tasty Concrete Pizza</td>
+                        <td>Kids</td>
+                        <td>INR 399.60</td>
+                        <td>43</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Incredible Bamboo Mouse</td>
+                        <td>Jewelry</td>
+                        <td>INR 627.51</td>
+                        <td>391</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Small Granite Gloves</td>
+                        <td>Beauty</td>
+                        <td>INR 475.85</td>
+                        <td>267</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Rustic Steel Chips</td>
+                        <td>Music</td>
+                        <td>INR 249.09</td>
+                        <td>98</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Bespoke Steel Chips</td>
+                        <td>Clothing</td>
+                        <td>INR 186.25</td>
+                        <td>153</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Modern Silk Pants</td>
+                        <td>Music</td>
+                        <td>INR 474.79</td>
+                        <td>57</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Electronic Ceramic Fish</td>
+                        <td>Baby</td>
+                        <td>INR 186.19</td>
+                        <td>330</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Unbranded Concrete Mouse</td>
+                        <td>Movies</td>
+                        <td>INR 182.69</td>
+                        <td>221</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Sleek Bamboo Car</td>
+                        <td>Kids</td>
+                        <td>INR 641.89</td>
+                        <td>70</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Modern Granite Soap</td>
+                        <td>Games</td>
+                        <td>INR 860.39</td>
+                        <td>485</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Awesome Granite Chicken</td>
+                        <td>Games</td>
+                        <td>INR 405.15</td>
+                        <td>345</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+                    <tr>
+                        <td>Soft Silk Salad</td>
+                        <td>Home</td>
+                        <td>INR 405.09</td>
+                        <td>354</td>
+                        <td>23/6/2026, 11:28:17 am</td>
+                    </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        <button id="prev-page" class="icon-button" type="button" aria-label="Previous page" disabled>&larr;</button>
+        <span id="pagination-status">Page 1 of 5 | Showing 20 docs</span>
+        <button id="next-page" class="icon-button" type="button" aria-label="Next page" >&rarr;</button>
+    </div>
+</div>
+
+<script>
+    const state = {"currentPage":1,"totalPages":5,"totalDocs":100,"limit":20,"search":""};
+    const productsBody = document.getElementById("products-body");
+    const totalCount = document.getElementById("total-count");
+    const paginationStatus = document.getElementById("pagination-status");
+    const previousButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+    const limitSelect = document.getElementById("limit-select");
+    const searchInput = document.getElementById("search-input");
+
+    let searchTimer = null;
+
+    const formatDate = (value) => new Date(value).toLocaleString();
+
+    const formatPrice = (value) => new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2,
+    }).format(value);
+
+    const setControlsDisabled = (disabled) => {
+        previousButton.disabled = disabled || state.currentPage <= 1;
+        nextButton.disabled = disabled || state.currentPage >= state.totalPages;
+        limitSelect.disabled = disabled;
+        searchInput.disabled = disabled;
+    };
+
+    const renderRows = (products) => {
+        productsBody.innerHTML = "";
+
+        if (products.length === 0) {
+            const row = document.createElement("tr");
+            row.className = "empty-row";
+            row.innerHTML = '<td colspan="5">No products found</td>';
+            productsBody.appendChild(row);
+            return;
+        }
+
+        products.forEach((product) => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            `;
+
+            row.children[0].textContent = product.name;
+            row.children[1].textContent = product.category;
+            row.children[2].textContent = formatPrice(product.price);
+            row.children[3].textContent = product.stock;
+            row.children[4].textContent = formatDate(product.updatedAt);
+
+            productsBody.appendChild(row);
+        });
+    };
+
+    const updateMeta = (data) => {
+        state.currentPage = data.currentPage;
+        state.totalPages = data.totalPages;
+        state.totalDocs = data.totalDocs;
+        state.limit = data.limit;
+        state.search = data.search;
+
+        totalCount.textContent = `${data.totalDocs} total docs`;
+        paginationStatus.textContent = `Page ${data.currentPage} of ${data.totalPages} | Showing ${data.products.length} docs`;
+        previousButton.disabled = !data.hasPrevPage;
+        nextButton.disabled = !data.hasNextPage;
+    };
+
+    const loadPage = async (page) => {
+        const params = new URLSearchParams({
+            page,
+            limit: limitSelect.value,
+            search: searchInput.value.trim(),
+        });
+
+        try {
+            setControlsDisabled(true);
+            paginationStatus.textContent = "Loading...";
+
+            const response = await fetch(`/api/products?${params.toString()}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Unable to load products");
+            }
+
+            renderRows(data.products);
+            updateMeta(data);
+        } catch (err) {
+            paginationStatus.textContent = err.message;
+        } finally {
+            setControlsDisabled(false);
+        }
+    };
+
+    previousButton.addEventListener("click", () => {
+        if (state.currentPage > 1) {
+            loadPage(state.currentPage - 1);
+        }
+    });
+
+    nextButton.addEventListener("click", () => {
+        if (state.currentPage < state.totalPages) {
+            loadPage(state.currentPage + 1);
+        }
+    });
+
+    limitSelect.addEventListener("change", () => {
+        loadPage(1);
+    });
+
+    searchInput.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => loadPage(1), 300);
+    });
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,197 @@
+<%- include('partials/header') %>
+<%
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeCurrentPage = typeof currentPage === 'number' ? currentPage : 1;
+  const safeTotalPages = typeof totalPages === 'number' ? totalPages : 1;
+  const safeTotalDocs = typeof totalDocs === 'number' ? totalDocs : 0;
+  const safeLimit = typeof limit === 'number' ? limit : 20;
+  const safeSearch = typeof search === 'string' ? search : '';
+  const safeHasPrevPage = typeof hasPrevPage === 'boolean' ? hasPrevPage : false;
+  const safeHasNextPage = typeof hasNextPage === 'boolean' ? hasNextPage : false;
+%>
+
+<div class="container">
+    <div class="page-title">
+        <h1>Product Dashboard</h1>
+        <span id="total-count"><%= safeTotalDocs %> total docs</span>
+    </div>
+
+    <div class="toolbar">
+        <label class="field">
+            <span>Search</span>
+            <input id="search-input" type="search" value="<%= safeSearch %>" placeholder="Search all products">
+        </label>
+
+        <label class="field compact">
+            <span>Per page</span>
+            <select id="limit-select">
+                <option value="20" <%= safeLimit === 20 ? 'selected' : '' %>>20</option>
+                <option value="40" <%= safeLimit === 40 ? 'selected' : '' %>>40</option>
+                <option value="60" <%= safeLimit === 60 ? 'selected' : '' %>>60</option>
+                <option value="80" <%= safeLimit === 80 ? 'selected' : '' %>>80</option>
+                <option value="100" <%= safeLimit === 100 ? 'selected' : '' %>>100</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="table-window">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+
+            <tbody id="products-body">
+                <% if (safeProducts.length === 0) { %>
+                    <tr class="empty-row">
+                        <td colspan="5">No products found</td>
+                    </tr>
+                <% } %>
+
+                <% safeProducts.forEach(product => { %>
+                    <tr>
+                        <td><%= product.name %></td>
+                        <td><%= product.category %></td>
+                        <td>INR <%= Number(product.price).toFixed(2) %></td>
+                        <td><%= product.stock %></td>
+                        <td><%= new Date(product.updatedAt).toLocaleString() %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        <button id="prev-page" class="icon-button" type="button" aria-label="Previous page" <%= hasPrevPage ? '' : 'disabled' %>>&larr;</button>
+        <span id="pagination-status">Page <%= safeCurrentPage %> of <%= safeTotalPages %> | Showing <%= safeProducts.length %> docs</span>
+        <button id="next-page" class="icon-button" type="button" aria-label="Next page" <%= hasNextPage ? '' : 'disabled' %>>&rarr;</button>
+    </div>
+</div>
+
+<script>
+    const state = <%- JSON.stringify({ currentPage: safeCurrentPage, totalPages: safeTotalPages, totalDocs: safeTotalDocs, limit: safeLimit, search: safeSearch }) %>;
+    const productsBody = document.getElementById("products-body");
+    const totalCount = document.getElementById("total-count");
+    const paginationStatus = document.getElementById("pagination-status");
+    const previousButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+    const limitSelect = document.getElementById("limit-select");
+    const searchInput = document.getElementById("search-input");
+
+    let searchTimer = null;
+
+    const formatDate = (value) => new Date(value).toLocaleString();
+
+    const formatPrice = (value) => new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2,
+    }).format(value);
+
+    const setControlsDisabled = (disabled) => {
+        previousButton.disabled = disabled || state.currentPage <= 1;
+        nextButton.disabled = disabled || state.currentPage >= state.totalPages;
+        limitSelect.disabled = disabled;
+        searchInput.disabled = disabled;
+    };
+
+    const renderRows = (products) => {
+        productsBody.innerHTML = "";
+
+        if (products.length === 0) {
+            const row = document.createElement("tr");
+            row.className = "empty-row";
+            row.innerHTML = '<td colspan="5">No products found</td>';
+            productsBody.appendChild(row);
+            return;
+        }
+
+        products.forEach((product) => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            `;
+
+            row.children[0].textContent = product.name;
+            row.children[1].textContent = product.category;
+            row.children[2].textContent = formatPrice(product.price);
+            row.children[3].textContent = product.stock;
+            row.children[4].textContent = formatDate(product.updatedAt);
+
+            productsBody.appendChild(row);
+        });
+    };
+
+    const updateMeta = (data) => {
+        state.currentPage = data.currentPage;
+        state.totalPages = data.totalPages;
+        state.totalDocs = data.totalDocs;
+        state.limit = data.limit;
+        state.search = data.search;
+
+        totalCount.textContent = `${data.totalDocs} total docs`;
+        paginationStatus.textContent = `Page ${data.currentPage} of ${data.totalPages} | Showing ${data.products.length} docs`;
+        previousButton.disabled = !data.hasPrevPage;
+        nextButton.disabled = !data.hasNextPage;
+    };
+
+    const loadPage = async (page) => {
+        const params = new URLSearchParams({
+            page,
+            limit: limitSelect.value,
+            search: searchInput.value.trim(),
+        });
+
+        try {
+            setControlsDisabled(true);
+            paginationStatus.textContent = "Loading...";
+
+            const response = await fetch(`/api/products?${params.toString()}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Unable to load products");
+            }
+
+            renderRows(data.products);
+            updateMeta(data);
+        } catch (err) {
+            paginationStatus.textContent = err.message;
+        } finally {
+            setControlsDisabled(false);
+        }
+    };
+
+    previousButton.addEventListener("click", () => {
+        if (state.currentPage > 1) {
+            loadPage(state.currentPage - 1);
+        }
+    });
+
+    nextButton.addEventListener("click", () => {
+        if (state.currentPage < state.totalPages) {
+            loadPage(state.currentPage + 1);
+        }
+    });
+
+    limitSelect.addEventListener("change", () => {
+        loadPage(1);
+    });
+
+    searchInput.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => loadPage(1), 300);
+    });
+</script>
+
+<%- include('partials/footer') %>

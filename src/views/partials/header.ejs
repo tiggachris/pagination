@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Dashboard</title>
+
+    <style>
+        *{
+            box-sizing:border-box;
+        }
+
+        html,
+        body{
+            height:100%;
+        }
+
+        body{
+            font-family:Arial, sans-serif;
+            margin:0;
+            min-height:100vh;
+            overflow:hidden;
+            padding:20px;
+            background:#f4f4f4;
+        }
+
+        .container{
+            max-width:1200px;
+            height:calc(100vh - 40px);
+            margin:auto;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            display:flex;
+            flex-direction:column;
+            min-height:0;
+        }
+
+        .page-title{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+            margin-bottom:16px;
+            flex:0 0 auto;
+        }
+
+        .page-title h1{
+            margin:0;
+        }
+
+        #total-count,
+        #pagination-status{
+            color:#555;
+            font-size:14px;
+        }
+
+        .toolbar{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap:16px;
+            margin-bottom:18px;
+            flex:0 0 auto;
+        }
+
+        .field{
+            display:flex;
+            flex:1;
+            flex-direction:column;
+            gap:6px;
+            font-size:13px;
+            font-weight:700;
+            color:#444;
+        }
+
+        .field.compact{
+            flex:0 0 140px;
+        }
+
+        input,
+        select{
+            border:1px solid #ccc;
+            border-radius:6px;
+            font:inherit;
+            min-height:40px;
+            padding:8px 10px;
+        }
+
+        .table-window{
+            border:1px solid #ddd;
+            flex:1 1 auto;
+            min-height:0;
+            overflow:auto;
+        }
+
+        table{
+            width:100%;
+            border-collapse:separate;
+            border-spacing:0;
+            table-layout:fixed;
+        }
+
+        th,td{
+            padding:12px;
+            border-bottom:1px solid #ddd;
+            border-right:1px solid #ddd;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        th:last-child,
+        td:last-child{
+            border-right:0;
+        }
+
+        th{
+            background:#333;
+            color:white;
+            position:sticky;
+            text-align:left;
+            top:0;
+            z-index:2;
+        }
+
+        tr:nth-child(even){
+            background:#f9f9f9;
+        }
+
+        .empty-row td{
+            color:#777;
+            text-align:center;
+        }
+
+        .pagination-bar{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:16px;
+            margin-top:18px;
+            flex:0 0 auto;
+        }
+
+        button{
+            border:0;
+            background:#333;
+            color:white;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .icon-button{
+            align-items:center;
+            border-radius:6px;
+            display:inline-flex;
+            font-size:20px;
+            height:40px;
+            justify-content:center;
+            line-height:1;
+            width:44px;
+        }
+
+        button:disabled,
+        input:disabled,
+        select:disabled{
+            cursor:not-allowed;
+            opacity:0.65;
+        }
+
+        @media (max-width: 700px){
+            body{
+                padding:12px;
+            }
+
+            .container{
+                height:calc(100vh - 24px);
+                padding:14px;
+            }
+
+            .page-title,
+            .toolbar{
+                align-items:stretch;
+                flex-direction:column;
+            }
+
+            .field.compact{
+                flex:auto;
+            }
+
+            .table-window{
+                overflow:auto;
+            }
+
+            table{
+                min-width:760px;
+            }
+        }
+    </style>
+</head>
+<body>
