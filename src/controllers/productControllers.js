@@ -105,3 +105,31 @@ exports.getProducts = async (req, res) => {
     });
   }
 };
+
+exports.seedProducts = async (req, res) => {
+  try {
+    const countSource = req.body?.count || req.query?.count;
+    const num = Number.parseInt(countSource, 10) || 200;
+
+    // require faker here so the server doesn't need it unless this route is used
+    const { faker } = require("@faker-js/faker");
+
+    const products = [];
+
+    for (let i = 0; i < num; i++) {
+      products.push({
+        name: faker.commerce.productName(),
+        category: faker.commerce.department(),
+        price: Number(faker.commerce.price()),
+        stock: faker.number.int({ min: 1, max: 500 }),
+        updatedAt: new Date(),
+      });
+    }
+
+    const inserted = await Product.insertMany(products);
+
+    res.json({ success: true, inserted: Array.isArray(inserted) ? inserted.length : 0 });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

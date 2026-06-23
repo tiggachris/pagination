@@ -13,6 +13,9 @@
 <div class="container">
     <div class="page-title">
         <h1>Product Dashboard</h1>
+        <div class="title-actions">
+            <button id="seed-button" class="primary">Add Products</button>
+        </div>
         <span id="total-count"><%= safeTotalDocs %> total docs</span>
     </div>
 
@@ -192,6 +195,42 @@
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => loadPage(1), 300);
     });
+
+    // Seed button handler
+    const seedButton = document.getElementById("seed-button");
+
+    if (seedButton) {
+        seedButton.addEventListener("click", async () => {
+            const confirmed = confirm("Add 200 products? This will add more documents to the database.");
+            if (!confirmed) return;
+
+            seedButton.disabled = true;
+            const originalText = seedButton.textContent;
+            seedButton.textContent = "Seeding...";
+
+            try {
+                const response = await fetch("/seed", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ count: 200 }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Seeding failed");
+                }
+
+                alert(`Inserted ${data.inserted} products`);
+                loadPage(1);
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                seedButton.disabled = false;
+                seedButton.textContent = originalText;
+            }
+        });
+    }
 </script>
 
 <%- include('partials/footer') %>
